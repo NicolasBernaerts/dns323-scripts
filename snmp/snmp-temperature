@@ -1,4 +1,4 @@
-#!/ffp/bin/sh
+#!/ffp/bin/bash
 # ----------------------------------------------
 # Retrieve dns-323 temperature sensor values
 # for internal, disk1 and disk2
@@ -14,14 +14,26 @@
 # 24/07/2014, V1.0 - Creation by N. Bernaerts
 # ----------------------------------------------
 
+# set linefeed separator
+IFS='
+'
+
 # read temperature for $1
 case $1 in
   # read case internal temperature
   internal)
-    # read temperature in Farenheit and convert it to celcius
-    RESULT=`temperature g 0 | tail -n 1 | sed 's/^.* = \([0-9]*\).*$/\1/g'`
-    RESULT=`expr $RESULT - 32`
-    RESULT=`expr $RESULT \* 5 / 9`
+    # read temperature
+    ARR_TEMP=(`temperature g 0`)
+    FAHRENHEIT=`echo ${ARR_TEMP[0]} | grep Fahrenheit`
+    RESULT=`echo ${ARR_TEMP[1]} | sed 's/^.* = \([0-9]*\).*$/\1/g'`
+    
+    # if result is in Farenheit, convert it to celcius
+    if [ "$RESULT" != "" ]; then
+      RESULT=`expr $RESULT - 32`
+      RESULT=`expr $RESULT \* 5 / 9`
+    fi
+    
+    # display temperature in celcius
     echo $RESULT
     ;;
 
